@@ -7,3 +7,10 @@
 *.gif binary
 *.pdf binary
 *.whl binary
+
+# 演示页(web/)是这个理论的可视化产物,不计入语言统计。
+# 不加这一行,GitHub 会把仓库的"主语言"标成 JavaScript —— 因为 web/app.js
+# 是最大的单个文件;而仓库的实质是那份 Python 分析与文章。
+# 用 linguist-documentation 而不是 linguist-detectable=false,是因为
+# 这个页面确实是"把理论讲给人看"的产物,归到文档更贴切。
+web/** linguist-documentation
