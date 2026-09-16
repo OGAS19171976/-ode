@@ -1,0 +1,58 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  python:
+    name: ${{ matrix.os }} / py${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # 只跑 Linux 与 Windows:这个仓库涉及数值稳定性与浮点边界,
+        # 那两件事在这两类平台上的差别最大。macOS 属于 POSIX,加进来只是烧时长。
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.10", "3.12", "3.14"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 安装
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install numpy scipy matplotlib
+
+      # 脚本会把 README §6 那张证据表逐行现场重算,并写出 figs/ 下三张图。
+      # 跑通 = 表里的数字在当前平台/版本上可复现(实测:生成的图与提交的字节一致)。
+      - name: 数值验证(README §6 的证据)
+        run: python ode_incremental_stability.py
+
+  web:
+    name: web / node ${{ matrix.node-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ["20", "22"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      # 演示页零依赖、零构建:数值内核断言 + 无浏览器渲染冒烟。
+      # 这两步同时守住一件事 —— 网页的内核与 ode_incremental_stability.py 口径一致。
+      - name: 数值内核断言(25 项)
+        run: node web/test-core.js
+
+      - name: 渲染与交互冒烟(17 项)
+        run: node web/smoke-dom.js
