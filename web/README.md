@@ -40,7 +40,13 @@ node smoke-dom.js
    Settings → Pages → Source 选 `Deploy from a branch`，分支 `main`，目录 `/docs`。
    页面地址形如 `https://<user>.github.io/<repo>/`。
 2. **分支法**：把 `web/` 内容推到 `gh-pages` 分支，Pages 源选该分支根目录。
-3. **Actions 法**：加一个 `actions/upload-pages-artifact` workflow，`path: incremental-ode/web`。
+3. **Actions 法（本仓库已配好）**：`.github/workflows/pages.yml` 已经写好，
+   把 `web/` 作为站点根上传发布。你只需要在
+   Settings → Pages → Source 里选 **GitHub Actions**（只需设一次）。
+   之后每次推 `main` 都会自动重新发布，地址是 `https://<user>.github.io/<repo>/`。
+
+   之所以选 Actions 而不是 docs 目录法：本页在 `web/` 子目录里，
+   改成 `docs/` 会把 README 和文章里的链接全部作废；Actions 法一行路径都不用动。
 
 三者都不需要 `npm install`、不需要改任何路径（页面内全部是相对引用）。
 
